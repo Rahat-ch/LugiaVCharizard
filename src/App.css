@@ -7,6 +7,15 @@
   pointer-events: none;
 }
 
+.pokes {
+  width: 250px;
+}
+
+.pokesgif {
+  width: 250px;
+  margin: 0 auto;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
@@ -35,4 +44,23 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.button {
+  cursor: pointer;
+  margin: 16px;
+  padding: 18px;
+  border: 0;
+  border-radius: 5px;
+  font-size: 2rem;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.imgContainer {
+  display: flex;
+  justify-content: space-around;
 }

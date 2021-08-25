@@ -1,23 +1,57 @@
-import logo from './logo.svg';
+import * as React from 'react';
 import './App.css';
+import BattleGround from './BattleGround';
 
 function App() {
+  const [currAcount, setCurrAccount] = React.useState("")
+
+  const isWalletConnected = () => {
+    const { ethereum } = window
+    if(!ethereum) {
+      console.log("Metmask not detected")
+      return
+    } else {
+      console.log("Ayy its ethereum", ethereum)
+    }
+
+    ethereum.request({ method: 'eth_accounts'})
+      .then(accounts => {
+        if(accounts.length !== 0){
+          const account = accounts[0]
+          console.log("found authorized account", account)
+          setCurrAccount(account)
+        } else {
+          console.log("no authorized account found")
+        }
+      })
+  }
+
+  const connectWallet = () => {
+    const { ethereum } = window
+    if(!ethereum) {
+      alert("get your ass some metamask yo!")
+      return
+    }
+    ethereum.request({ method: 'eth_accounts' })
+      .then(accounts => {
+        console.log("connected", accounts[0])
+        setCurrAccount(accounts[0])
+      })
+      .catch(err => console.error(err))
+  }
+
+  React.useEffect(() => {
+    isWalletConnected()
+  },[])
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {currAcount ? <BattleGround /> : 
+      <>
+        <h1>Connect with MetaMask to fight Lugia</h1>
+        <button onClick={connectWallet}>Connect Wallet</button>
+        </>
+      }
+      
     </div>
   );
 }
