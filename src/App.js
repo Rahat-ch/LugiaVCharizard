@@ -32,9 +32,10 @@ function App() {
       alert("get your ass some metamask yo!")
       return
     }
-    ethereum.request({ method: 'eth_accounts' })
+    ethereum.request({ method: 'eth_requestAccounts' })
       .then(accounts => {
-        console.log("connected", accounts[0])
+        console.log('hello')
+        console.log(accounts)
         setCurrAccount(accounts[0])
       })
       .catch(err => console.error(err))
