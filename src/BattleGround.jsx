@@ -5,13 +5,14 @@ import charizard from './images/charizard.png'
 import lugia from './images/lugia.png'
 import flamethrower from './images/flamethrower.gif'
 import zardhealing from './images/potion.gif'
+import BattleCard from './BattleCard';
 
 const BattleGround = () => {
-    console.log(zardhealing)
     const [attacking, setAttacking] = React.useState(false)
     const [healing, setHealing] = React.useState(false)
     const [zardhp, setZardhp] = React.useState("")
     const [shadowlugiahp, setLugiahp] = React.useState("")
+    const [allActions, setAllActions] = React.useState([])
 
     const contractAddress = process.env.REACT_APP_ADDRESS;
     const contractABI = abi.abi
@@ -21,7 +22,7 @@ const BattleGround = () => {
     const lugiaBattleContract = new ethers.Contract(contractAddress, contractABI, signer);
 
     const attack = async () => {
-        const attack = await lugiaBattleContract.attack();
+        const attack = await lugiaBattleContract.attack(`attacked Lugia with Flamethrower! Lugia attacked back!`);
         console.log("attacking....", attack.hash)
         setAttacking(true)
         await attack.wait()
@@ -36,7 +37,7 @@ const BattleGround = () => {
   }
 
   const potion = async () => {
-      const potion = await lugiaBattleContract.potion()
+      const potion = await lugiaBattleContract.potion(`healed Charizard with a potion!`)
       console.log("healing...")
       setHealing(true)
       await potion.wait()
@@ -55,12 +56,36 @@ const BattleGround = () => {
         console.log(`Charizard got ${charizardHP} hp remaining`)
         setZardhp(`${charizardHP}`)
   }
+  
+  const getAllActions = async () => {
+    const actions = await lugiaBattleContract.getAllActions()
+    const cleanedActions = actions.map(action => {
+        return {
+            address: action.trainer,
+            timestamp: new Date(action.timestamp * 1000),
+            message: action.message,
+        }
+    })
+    setAllActions(cleanedActions)
+  }
+
+  const listener = (block) => {
+    console.log("new action emited")
+    console.log(block)
+    getAllActions()
+  }
 
   React.useEffect(() => {
     getHP()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    getAllActions()
+    lugiaBattleContract.on("NewAction", listener)
+    return () => {
+        lugiaBattleContract.off("NewAction", listener)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 
+    console.log({allActions})
     return(
         <main className="container">
             <h1>Help Charizard defeat Lugia!</h1>
@@ -87,6 +112,7 @@ const BattleGround = () => {
         <button className="button" onClick={potion}>Use a Potion!</button>
         </>
         }
+        {allActions.map(action => <BattleCard action={action} />)}
         </main>
     )
 }
